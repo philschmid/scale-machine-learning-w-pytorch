@@ -1,0 +1,51 @@
+service: car-damage-pytorch
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: eu-central-1
+  timeout: 60
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    zip: true
+    slim: true
+    strip: false
+    noDeploy:
+      - boto3
+      - botocore
+      - docutils
+      - jmespath
+      - pip
+      - python-dateutil
+      - s3transfer
+      - setuptools
+      - six
+      - tensorboard
+    useStaticCache: true
+    useDownloadCache: true
+    cacheLocation: "./cache"
+package:
+  individually: false
+  exclude:
+    - package.json
+    - package-log.json
+    - node_modules/**
+    - cache/**
+    - test/**
+    - __pycache__/**
+    - .pytest_cache/**
+
+functions:
+  detect_damage:
+    handler: handler.detect_damage
+    memorySize: 3008
+    events:
+      - http:
+          path: detect
+          method: post
+          cors: true
+
+plugins:
+  - serverless-python-requirements
