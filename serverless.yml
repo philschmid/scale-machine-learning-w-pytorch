@@ -2,14 +2,13 @@ service: car-damage-pytorch
 
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.8
   region: eu-central-1
   timeout: 60
   environment:
     # stage: ${opt:stage}
-    BUCKET_NAME: philschmid-models
-    ITEM_NAME: image_classifier/cardamage.pth
-    MODEL_PATH: /tmp/cardamage.pth
+    S3_BUCKET: philschmid-models
+    MODEL_PATH: image_classifier/cardamage.tar.gz
   iamRoleStatements:
     - Effect: "Allow"
       Action:

@@ -19,7 +19,6 @@ import json
 # define env variables if there are not existing
 S3_BUCKET = os.environ['S3_BUCKET'] if 'S3_BUCKET' in os.environ else 'philschmid-models'
 MODEL_PATH = os.environ['MODEL_PATH'] if 'MODEL_PATH' in os.environ else './model/cardamage.tar.gz'  # 'image_classifier/cardamage.tar.gz'
-# class list for predicition
 
 # load the S3 client when lambda execution context is created
 s3 = boto3.client('s3')
@@ -82,9 +81,8 @@ def get_prediction(image_bytes):
 
 def detect_damage(event, context):
     try:
-            # content_type_header = event['headers']['content-type']
-        content_type_header = 'multipart/form-data; boundary=X-INSOMNIA-BOUNDARY'
-
+        content_type_header = event['headers']['content-type']
+        print(event['body'])
         body = base64.b64decode(event["body"])
 
         picture = decoder.MultipartDecoder(body, content_type_header).parts[0]
