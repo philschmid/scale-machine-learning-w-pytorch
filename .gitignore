@@ -25,4 +25,5 @@ node_modules/
 .DS_STORE
 .requirements.zip
 .vscode
-model
+*.pth
+*.tar.gz

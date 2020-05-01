@@ -5,6 +5,16 @@ provider:
   runtime: python3.7
   region: eu-central-1
   timeout: 60
+  environment:
+    # stage: ${opt:stage}
+    BUCKET_NAME: philschmid-models
+    ITEM_NAME: image_classifier/cardamage.pth
+    MODEL_PATH: /tmp/cardamage.pth
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - s3:getObject
+      Resource: arn:aws:s3:::philschmid-models/image_classifier/*
 
 custom:
   pythonRequirements:
@@ -13,13 +23,10 @@ custom:
     slim: true
     strip: false
     noDeploy:
-      - boto3
-      - botocore
       - docutils
       - jmespath
       - pip
       - python-dateutil
-      - s3transfer
       - setuptools
       - six
       - tensorboard
@@ -36,11 +43,13 @@ package:
     - test/**
     - __pycache__/**
     - .pytest_cache/**
+    - model/**
 
 functions:
   detect_damage:
     handler: handler.detect_damage
     memorySize: 3008
+    timeout: 60
     events:
       - http:
           path: detect
