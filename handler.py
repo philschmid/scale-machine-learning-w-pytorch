@@ -8,6 +8,9 @@ import torchvision
 import torchvision.transforms as transforms
 from PIL import Image
 
+from torchvision.models import resnet50
+from torch import nn
+
 import boto3
 import os
 import tarfile
@@ -46,8 +49,13 @@ def load_model_from_s3():
                 print("Model file is :", member.name)
                 f = tar.extractfile(member)
                 print("Loading PyTorch model")
-                # model = torch.jit.load(io.BytesIO(f.read()), map_location=torch.device('cpu')).eval()
-                model = torch.load(io.BytesIO(f.read()), map_location=lambda storage, loc: storage)
+                device = torch.device('cpu')
+                model = resnet50(pretrained=False)
+                model.fc = nn.Sequential(nn.Linear(2048, 512), nn.ReLU(), nn.Dropout(0.2),
+                                         nn.Linear(512, 10),
+                                         nn.LogSoftmax(dim=1))
+                model.load_state_dict(torch.load(io.BytesIO(f.read()), map_location=device))
+                model.eval()
         return model, classes
     except Exception as e:
         print(repr(e))
@@ -111,6 +119,5 @@ def detect_damage(event, context):
                 'Access-Control-Allow-Origin': '*',
                 "Access-Control-Allow-Credentials": True
             },
-            "body": event['body']
-            # "body": json.dumps({"error": repr(e)})
+            "body": json.dumps({"error": repr(e)})
         }
